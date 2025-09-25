@@ -1,0 +1,18 @@
+# Example containerd configuration snippet for testdm snapshotter
+# Add this to your /etc/containerd/config.toml file
+
+[plugins."io.containerd.snapshotter.v1.testdm"]
+  root_path = "/var/lib/containerd/io.containerd.snapshotter.v1.testdm"
+  device_dir = "/dev/mapper"
+  default_fs = "ext4"
+
+# With this configuration:
+# - snapshot key "test-device" maps to "/dev/mapper/test-device"
+# - snapshot key "data-volume" maps to "/dev/mapper/data-volume" 
+# - snapshot key "cache-device" maps to "/dev/mapper/cache-device"
+
+# Example commands to create test devices before using:
+# sudo fallocate -l 1G /tmp/test-device.img
+# sudo losetup /dev/loop0 /tmp/test-device.img
+# sudo dmsetup create test-device --table "0 2097152 linear /dev/loop0 0"
+# sudo mkfs.ext4 /dev/mapper/test-device
