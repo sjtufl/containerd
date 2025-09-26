@@ -124,7 +124,7 @@ func (s *Snapshotter) getDevicePath(key string) (string, error) {
 
 // Stat returns info for a snapshot - creates minimal metadata
 func (s *Snapshotter) Stat(ctx context.Context, key string) (snapshots.Info, error) {
-	log.G(ctx).WithField("key", key).Debug("stat")
+	log.G(ctx).WithField("key", key).Info("stat")
 
 	var info snapshots.Info
 	err := s.store.WithTransaction(ctx, false, func(ctx context.Context) error {
@@ -156,7 +156,7 @@ func (s *Snapshotter) Stat(ctx context.Context, key string) (snapshots.Info, err
 
 // Update updates snapshot info
 func (s *Snapshotter) Update(ctx context.Context, info snapshots.Info, fieldpaths ...string) (snapshots.Info, error) {
-	log.G(ctx).WithField("key", info.Name).Debug("update")
+	log.G(ctx).WithField("key", info.Name).Info("update")
 
 	err := s.store.WithTransaction(ctx, true, func(ctx context.Context) error {
 		var updateErr error
@@ -169,7 +169,7 @@ func (s *Snapshotter) Update(ctx context.Context, info snapshots.Info, fieldpath
 
 // Usage returns resource usage - returns zero usage for simplicity
 func (s *Snapshotter) Usage(ctx context.Context, key string) (snapshots.Usage, error) {
-	log.G(ctx).WithField("key", key).Debug("usage")
+	log.G(ctx).WithField("key", key).Info("usage")
 
 	// Verify the key exists (either in metadata or device mapping)
 	if _, err := s.Stat(ctx, key); err != nil {
@@ -185,7 +185,7 @@ func (s *Snapshotter) Usage(ctx context.Context, key string) (snapshots.Usage, e
 
 // Mounts returns mounts for the snapshot - this is the key method that returns device paths
 func (s *Snapshotter) Mounts(ctx context.Context, key string) ([]mount.Mount, error) {
-	log.G(ctx).WithField("key", key).Debug("mounts")
+	log.G(ctx).WithField("key", key).Info("mounts")
 
 	devicePath, err := s.getDevicePath(key)
 	if err != nil {
@@ -205,7 +205,7 @@ func (s *Snapshotter) Mounts(ctx context.Context, key string) ([]mount.Mount, er
 		"key":    key,
 		"device": devicePath,
 		"fs":     s.config.DefaultFileSystem,
-	}).Debug("returning mounts for existing device")
+	}).Info("returning mounts for existing device")
 
 	return mounts, nil
 }
@@ -215,7 +215,7 @@ func (s *Snapshotter) Prepare(ctx context.Context, key, parent string, opts ...s
 	log.G(ctx).WithFields(log.Fields{
 		"key":    key,
 		"parent": parent,
-	}).Debug("prepare")
+	}).Info("prepare")
 
 	// Check if device mapping exists for this key
 	_, err := s.getDevicePath(key)
@@ -241,7 +241,7 @@ func (s *Snapshotter) View(ctx context.Context, key, parent string, opts ...snap
 	log.G(ctx).WithFields(log.Fields{
 		"key":    key,
 		"parent": parent,
-	}).Debug("view")
+	}).Info("view")
 
 	// Check if device mapping exists for this key
 	devicePath, err := s.getDevicePath(key)
@@ -275,7 +275,7 @@ func (s *Snapshotter) Commit(ctx context.Context, name, key string, opts ...snap
 	log.G(ctx).WithFields(log.Fields{
 		"name": name,
 		"key":  key,
-	}).Debug("commit")
+	}).Info("commit")
 
 	var o snapshots.Info
 	for _, opt := range opts {
@@ -293,7 +293,7 @@ func (s *Snapshotter) Commit(ctx context.Context, name, key string, opts ...snap
 
 // Remove removes a snapshot - just remove from metadata
 func (s *Snapshotter) Remove(ctx context.Context, key string) error {
-	log.G(ctx).WithField("key", key).Debug("remove")
+	log.G(ctx).WithField("key", key).Info("remove")
 
 	return s.store.WithTransaction(ctx, true, func(ctx context.Context) error {
 		_, _, err := storage.Remove(ctx, key)
@@ -303,7 +303,7 @@ func (s *Snapshotter) Remove(ctx context.Context, key string) error {
 
 // Walk iterates through all snapshots
 func (s *Snapshotter) Walk(ctx context.Context, fn snapshots.WalkFunc, fs ...string) error {
-	log.G(ctx).Debug("walk")
+	log.G(ctx).Info("walk")
 
 	return s.store.WithTransaction(ctx, false, func(ctx context.Context) error {
 		return storage.WalkInfo(ctx, fn, fs...)

@@ -144,10 +144,14 @@ func (s *service) Mounts(ctx context.Context, mr *snapshotsapi.MountsRequest) (*
 		return nil, err
 	}
 
+	log.G(ctx).WithFields(log.Fields{"key": mr.Key, "snapshotter": mr.Snapshotter}).Debugf("got snapshotter successfully")
+
 	mounts, err := sn.Mounts(ctx, mr.Key)
 	if err != nil {
+		log.G(ctx).WithFields(log.Fields{"key": mr.Key, "snapshotter": mr.Snapshotter}).Errorf("failed to get snapshot mounts: %v", err)
 		return nil, errdefs.ToGRPC(err)
 	}
+
 	return &snapshotsapi.MountsResponse{
 		Mounts: fromMounts(mounts),
 	}, nil
