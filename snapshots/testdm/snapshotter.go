@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -109,7 +110,14 @@ func (s *Snapshotter) getDevicePath(key string) (string, error) {
 	defer s.mu.RUnlock()
 
 	// Construct device path by combining device directory with key
-	devicePath := filepath.Join(s.config.DeviceDir, key)
+	parts := strings.SplitN(key, "/", 3)
+	shortKey := key
+	if len(parts) == 3 {
+		shortKey = parts[2] // "rootest1"
+	} else {
+		return "", fmt.Errorf("key %s is not in expected format. Expected example: default/1/rootest", key)
+	}
+	devicePath := filepath.Join(s.config.DeviceDir, shortKey)
 
 	// Verify the device actually exists
 	if _, err := os.Stat(devicePath); err != nil {
